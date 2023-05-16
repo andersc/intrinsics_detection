@@ -20,7 +20,7 @@ int main() {
     std::cout << std::endl;
 
     // Do not use GetIntrin() in hot path. Extract what you need into hot path and use it there.
-    if (std::find(lCapabilities.begin(), lCapabilities.end(), lGetCap.AVX2) != lCapabilities.end()) {
+    if (std::find(lCapabilities.begin(), lCapabilities.end(), GetIntrin::Instructions::AVX2) != lCapabilities.end()) {
         // Set a variable to use in hot path
         std::cout << "This CPU has AVX2 support." << std::endl;
     } else {
