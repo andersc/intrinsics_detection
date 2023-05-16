@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <string>
 #if defined(_MSC_VER)
 #include <intrin.h>
 #endif
