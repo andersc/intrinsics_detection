@@ -212,24 +212,22 @@ public:
         if (ecx & (1 << 10)) mInstructions.emplace_back(Instructions::VPCLMULQDQ);
         if (ecx & (1 << 5)) mInstructions.emplace_back(Instructions::WAITPKG);
 
-        if (!extendedLeaf) {
-            return mInstructions;
+        if (extendedLeaf) {
+            // Extended feature leaf information
+            eax = 7;
+            ecx = 1;
+            cpuid(&eax, &ebx, &ecx, &edx);
+
+            if (eax & (1 << 4)) mInstructions.emplace_back(Instructions::AVX_VNNI);
+            if (edx & (1 << 4)) mInstructions.emplace_back(Instructions::AVX_VNNI_INT8);
+            if (edx & (1 << 5)) mInstructions.emplace_back(Instructions::AVX_NE_CONVERT);
+            if (edx & (1 << 23)) mInstructions.emplace_back(Instructions::AVX_IFMA);
+            if (eax & (1 << 5)) mInstructions.emplace_back(Instructions::AVX_512_BF16);
+            if (eax & (1 << 7)) mInstructions.emplace_back(Instructions::CMPCCXADD);
+            if (eax & (1 << 22)) mInstructions.emplace_back(Instructions::HRESET);
+            if (edx & (1 << 14)) mInstructions.emplace_back(Instructions::PREFETCHI);
+            if (eax & (1 << 3)) mInstructions.emplace_back(Instructions::RAO_INT);
         }
-
-        // Extended feature leaf information
-        eax = 7;
-        ecx = 1;
-        cpuid(&eax, &ebx, &ecx, &edx);
-
-        if (eax & (1 << 4)) mInstructions.emplace_back(Instructions::AVX_VNNI);
-        if (edx & (1 << 4)) mInstructions.emplace_back(Instructions::AVX_VNNI_INT8);
-        if (edx & (1 << 5)) mInstructions.emplace_back(Instructions::AVX_NE_CONVERT);
-        if (edx & (1 << 23)) mInstructions.emplace_back(Instructions::AVX_IFMA);
-        if (eax & (1 << 5)) mInstructions.emplace_back(Instructions::AVX_512_BF16);
-        if (eax & (1 << 7)) mInstructions.emplace_back(Instructions::CMPCCXADD);
-        if (eax & (1 << 22)) mInstructions.emplace_back(Instructions::HRESET);
-        if (edx & (1 << 14)) mInstructions.emplace_back(Instructions::PREFETCHI);
-        if (eax & (1 << 3)) mInstructions.emplace_back(Instructions::RAO_INT);
 
         return mInstructions;
     }
