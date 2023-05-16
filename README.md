@@ -2,7 +2,7 @@
 
 # Intrinsics detection
 
-A header only X86 intrinsic detector. The detection is made through the usage of the **cupid** instruction and is targeting the naming used at 
+A header only x86_64 intrinsic detector. The detection is made through the usage of the **cpuid** instruction and is targeting the naming used at 
 [Intel® Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html).
 
 ## Usage

@@ -8,6 +8,11 @@
 #include <vector>
 #include <bitset>
 
+#if __x86_64__ || _M_X64
+#else
+#error Architecture not supported
+#endif
+
 class GetIntrin {
 public:
     enum Instructions : uint32_t {
@@ -102,19 +107,20 @@ public:
         uint32_t maxExtendedCapabilities = 0;
         uint32_t extendedLeaf = 0;
 
-        // Feature information
+        // Is extended feature information available?
         eax = 0;
         ecx = 0;
         cpuid(&eax, &ebx, &ecx, &edx);
         maxCapabilities = eax;
 
-        // Extended information
+        // Get extended information size
         eax = 0x80000000;
         ecx = 0;
         cpuid(&eax, &ebx, &ecx, &edx);
         maxExtendedCapabilities = 0x7fffffff & eax;
 
         if (maxExtendedCapabilities >= 1) {
+            // Get extended information
             eax = 0x80000001;
             ecx = 0;
             cpuid(&eax, &ebx, &ecx, &edx);
@@ -126,6 +132,7 @@ public:
         }
 
         if (maxExtendedCapabilities >= 8) {
+            // Get extended information
             eax = 0x80000008;
             ecx = 0;
             cpuid(&eax, &ebx, &ecx, &edx);
@@ -262,7 +269,7 @@ private:
     }
 
     std::vector<Instructions> mInstructions;
-    std::string mFeatureNames[InstructionsMax] = {
+    const std::string mFeatureNames[InstructionsMax] = {
             "MMX",
             "SSE",
             "SSE2",
