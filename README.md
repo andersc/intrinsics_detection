@@ -21,14 +21,14 @@ auto lCPUInfo = lIntrinCap.getCapabilities();
 
 // Helper method for getting friendly names -> getFeatureName
 for (auto &rCap: lCPUInfo.mCapabilities) {
-std::cout << lIntrinCap.getFeatureName(rCap) << std::endl;
+    std::cout << lIntrinCap.getFeatureName(rCap) << std::endl;
 }
 
 // Helper method for evaluating if a feature is supported -> hasFeature
 if (lIntrinCap.hasFeature(GetIntrin::Instructions::AVX2)) {
-std::cout << std::endl << "This CPU has AVX2 support." << std::endl;
+    std::cout << std::endl << "This CPU has AVX2 support." << std::endl;
 } else {
-std::cout << std::endl << "This CPU does not have AVX2 support." << std::endl;
+    std::cout << std::endl << "This CPU does not have AVX2 support." << std::endl;
 }
 
 ```
