@@ -17,8 +17,6 @@ int main() {
         std::cout << lGetCap.getFeatureName(rCap) << std::endl;
     }
 
-    GetIntrin::Instructions::VAES
-
     std::cout << std::endl;
 
     // Do not use GetIntrin() in hot path. Extract what you need into hot path and use it there.
