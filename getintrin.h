@@ -7,6 +7,10 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 
 #if __x86_64__ || _M_X64
 #else
