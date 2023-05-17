@@ -13,6 +13,7 @@ int main() {
     auto lCPUInfo = lIntrinCap.getCapabilities();
 
     std::cout << "Vendor: " << lCPUInfo.mVendor << std::endl;
+    std::cout << "Name: " << lCPUInfo.mName << std::endl;
     std::cout << "Stepping: " << std::to_string(lCPUInfo.mStepping) << std::endl;
     std::cout << "Model: " << std::to_string(lCPUInfo.mModel) << std::endl;
     std::cout << "Family: " << std::to_string(lCPUInfo.mFamilyID) << std::endl;

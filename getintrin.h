@@ -8,10 +8,10 @@
 #include <vector>
 #include <bitset>
 #include <string>
+
 #if defined(_MSC_VER)
 #include <intrin.h>
 #endif
-
 
 #if __x86_64__ || _M_X64
 #else
@@ -113,6 +113,7 @@ public:
 
     struct CPUInfo {
         std::string mVendor;
+        std::string mName;
         uint8_t mStepping = 0;
         uint8_t mModel = 0;
         uint8_t mFamilyID = 0;
@@ -134,13 +135,32 @@ public:
         ecx = 0;
         cpuid(&eax, &ebx, &ecx, &edx);
         maxCapabilities = eax;
-        mCPUInfo.mVendor = std::string((const char*)&ebx,4) + std::string((const char*)&edx,4) + std::string((const char*)&ecx,4);
+        mCPUInfo.mVendor = std::string((const char *) &ebx, 4) + std::string((const char *) &edx, 4) +
+                           std::string((const char *) &ecx, 4);
 
         // Get extended information size
         eax = 0x80000000;
         ecx = 0;
         cpuid(&eax, &ebx, &ecx, &edx);
         maxExtendedCapabilities = 0x7fffffff & eax;
+
+        if (maxExtendedCapabilities >= 4) {
+            eax = 0x80000002;
+            ecx = 0;
+            cpuid(&eax, &ebx, &ecx, &edx);
+            mCPUInfo.mName = std::string((const char *) &eax, 4) + std::string((const char *) &ebx, 4) +
+                             std::string((const char *) &ecx, 4) + std::string((const char *) &edx, 4);
+            eax = 0x80000003;
+            ecx = 0;
+            cpuid(&eax, &ebx, &ecx, &edx);
+            mCPUInfo.mName += std::string((const char *) &eax, 4) + std::string((const char *) &ebx, 4) +
+                              std::string((const char *) &ecx, 4) + std::string((const char *) &edx, 4);
+            eax = 0x80000004;
+            ecx = 0;
+            cpuid(&eax, &ebx, &ecx, &edx);
+            mCPUInfo.mName += std::string((const char *) &eax, 4) + std::string((const char *) &ebx, 4) +
+                              std::string((const char *) &ecx, 4) + std::string((const char *) &edx, 4);
+        }
 
         if (maxExtendedCapabilities >= 1) {
             // Get extended information
@@ -281,7 +301,8 @@ public:
     }
 
     [[nodiscard]] bool hasFeature(Instructions feature) const {
-        return std::find(mCPUInfo.mCapabilities.begin(), mCPUInfo.mCapabilities.end(), feature) != mCPUInfo.mCapabilities.end();
+        return std::find(mCPUInfo.mCapabilities.begin(), mCPUInfo.mCapabilities.end(), feature) !=
+               mCPUInfo.mCapabilities.end();
     }
 
     std::string getFeatureName(Instructions feature) {
