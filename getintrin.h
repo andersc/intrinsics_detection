@@ -54,6 +54,11 @@ public:
         AVX_512_VNNI,
         AVX_512_VP2INTERSECT,
         AVX_512_FP16,
+        AMX_BF16,   // Section AMX
+        AMX_INT8,
+        AMX_TILE,
+        AMX_FP16,
+        AMX_COMPLEX,
         ADX,        // Section Other
         AES,
         BMI1,
@@ -247,7 +252,10 @@ public:
         if (edx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::SERIALIZE);
         if (edx & (1 << 16)) mCPUInfo.mCapabilities.emplace_back(Instructions::TSXLDTRK);
         if (edx & (1 << 18)) mCPUInfo.mCapabilities.emplace_back(Instructions::PCONFIG);
+        if (edx & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::AMX_BF16);
         if (edx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_FP16);
+        if (edx & (1 << 24)) mCPUInfo.mCapabilities.emplace_back(Instructions::AMX_TILE);
+        if (edx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::AMX_INT8);
 
         if (extendedLeaf) {
             // Extended feature leaf information
@@ -259,11 +267,13 @@ public:
             if (eax & (1 << 4)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_VNNI);
             if (eax & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_BF16);
             if (eax & (1 << 7)) mCPUInfo.mCapabilities.emplace_back(Instructions::CMPCCXADD);
+            if (eax & (1 << 21)) mCPUInfo.mCapabilities.emplace_back(Instructions::AMX_FP16);
             if (eax & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::HRESET);
             if (eax & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_IFMA);
 
             if (edx & (1 << 4)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_VNNI_INT8);
             if (edx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_NE_CONVERT);
+            if (edx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::AMX_COMPLEX);
             if (edx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::PREFETCHI);
         }
 
@@ -338,6 +348,11 @@ private:
             "AVX_512_VNNI",
             "AVX_512_VP2INTERSECT",
             "AVX_512_FP16",
+            "AMX_BF16",
+            "AMX_INT8",
+            "AMX_TILE",
+            "AMX_FP16",
+            "AMX_COMPLEX",
             "ADX",
             "AES",
             "BMI1",
