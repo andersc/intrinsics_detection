@@ -142,11 +142,12 @@ public:
             eax = 0x80000001;
             ecx = 0;
             cpuid(&eax, &ebx, &ecx, &edx);
-            if (edx & (1 << 24)) mCPUInfo.mCapabilities.emplace_back(Instructions::FXSR);
             if (ecx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::LZCNT);
             if (ecx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::PRFCHW);
-            if (edx & (1 << 27)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDTSCP);
+
             if (edx & (1 << 4)) mCPUInfo.mCapabilities.emplace_back(Instructions::TSC);
+            if (edx & (1 << 24)) mCPUInfo.mCapabilities.emplace_back(Instructions::FXSR);
+            if (edx & (1 << 27)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDTSCP);
         }
 
         if (maxExtendedCapabilities >= 8) {
@@ -161,26 +162,28 @@ public:
         eax = 1;
         ecx = 0;
         cpuid(&eax, &ebx, &ecx, &edx);
-        if (edx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::MMX);
-        if (edx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSE);
-        if (edx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSE2);
+
         if (ecx & (1 << 0)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSE3);
+        if (ecx & (1 << 1)) mCPUInfo.mCapabilities.emplace_back(Instructions::PCLMULQDQ);
+        if (ecx & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::MONITOR);
         if (ecx & (1 << 9)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSSE3);
+        if (ecx & (1 << 12)) mCPUInfo.mCapabilities.emplace_back(Instructions::FMA);
         if (ecx & (1 << 19)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSE41);
         if (ecx & (1 << 20)) {
             mCPUInfo.mCapabilities.emplace_back(Instructions::SSE42);
             mCPUInfo.mCapabilities.emplace_back(Instructions::CRC32);
         }
+        if (ecx & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::MOVBE);
+        if (ecx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::POPCNT);
+        if (ecx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::AES);
+        if (ecx & (1 << 26)) mCPUInfo.mCapabilities.emplace_back(Instructions::XSAVE);
         if (ecx & (1 << 28)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX);
         if (ecx & (1 << 29)) mCPUInfo.mCapabilities.emplace_back(Instructions::F16C);
-        if (ecx & (1 << 12)) mCPUInfo.mCapabilities.emplace_back(Instructions::FMA);
-        if (ecx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::AES);
-        if (ecx & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::MONITOR);
-        if (ecx & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::MOVBE);
-        if (ecx & (1 << 1)) mCPUInfo.mCapabilities.emplace_back(Instructions::PCLMULQDQ);
-        if (ecx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::POPCNT);
         if (ecx & (1 << 30)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDRAND);
-        if (ecx & (1 << 26)) mCPUInfo.mCapabilities.emplace_back(Instructions::XSAVE);
+
+        if (edx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::MMX);
+        if (edx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSE);
+        if (edx & (1 << 26)) mCPUInfo.mCapabilities.emplace_back(Instructions::SSE2);
 
         mCPUInfo.mStepping = eax & 0xF;
         mCPUInfo.mModel = (eax >> 4) & 0xF;
@@ -199,50 +202,52 @@ public:
         cpuid(&eax, &ebx, &ecx, &edx);
         extendedLeaf = eax;
 
-        if (ebx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX2);
-        if (ebx & (1 << 16)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512F);
-        if (ebx & (1 << 30)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512BW);
-        if (ebx & (1 << 28)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512CD);
-        if (ebx & (1 << 17)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512DQ);
-        if (ebx & (1 << 27)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512ER);
-        if (ebx & (1 << 21)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512IFMA52);
-        if (ebx & (1 << 26)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512PF);
-        if (ebx & (1 << 31)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512VL);
-        if (ecx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512VPOPCNTDQ);
-        if (edx & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_4FMAPS);
-        if (edx & (1 << 2)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_4VNNIW);
-        if (ecx & (1 << 12)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_BITALG);
-        if (ecx & (1 << 1)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VBMI);
-        if (ecx & (1 << 6)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VBMI2);
-        if (ecx & (1 << 11)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VNNI);
-        if (edx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VP2INTERSECT);
-        if (edx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_FP16);
-        if (ebx & (1 << 19)) mCPUInfo.mCapabilities.emplace_back(Instructions::ADX);
+        if (ebx & (1 << 0)) mCPUInfo.mCapabilities.emplace_back(Instructions::FSGSBASE);
         if (ebx & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::BMI1);
+        if (ebx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX2);
         if (ebx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::BMI2);
-        if (ecx & (1 << 7)) mCPUInfo.mCapabilities.emplace_back(Instructions::CET_SS);
-        if (ecx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::CLDEMOTE);
+        if (ebx & (1 << 10)) mCPUInfo.mCapabilities.emplace_back(Instructions::INVPCID);
+        if (ebx & (1 << 11)) mCPUInfo.mCapabilities.emplace_back(Instructions::RTM);
+        if (ebx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::MPX);
+        if (ebx & (1 << 16)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512F);
+        if (ebx & (1 << 17)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512DQ);
+        if (ebx & (1 << 18)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDSEED);
+        if (ebx & (1 << 19)) mCPUInfo.mCapabilities.emplace_back(Instructions::ADX);
+        if (ebx & (1 << 21)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512IFMA52);
         if (ebx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::CLFLUSHOPT);
         if (ebx & (1 << 24)) mCPUInfo.mCapabilities.emplace_back(Instructions::CLWB);
-        if (ecx & (1 << 29)) mCPUInfo.mCapabilities.emplace_back(Instructions::ENQCMD);
-        if (ebx & (1 << 0)) mCPUInfo.mCapabilities.emplace_back(Instructions::FSGSBASE);
-        if (ecx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::GFNI);
-        if (ebx & (1 << 10)) mCPUInfo.mCapabilities.emplace_back(Instructions::INVPCID);
-        if (ecx & (1 << 28)) mCPUInfo.mCapabilities.emplace_back(Instructions::MOVDIR64B);
-        if (ecx & (1 << 27)) mCPUInfo.mCapabilities.emplace_back(Instructions::MOVDIRI);
-        if (ebx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::MPX);
-        if (edx & (1 << 18)) mCPUInfo.mCapabilities.emplace_back(Instructions::PCONFIG);
-        if (ecx & (1 << 0)) mCPUInfo.mCapabilities.emplace_back(Instructions::PREFETCHWT1);
-        if (ecx & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDPID);
-        if (ebx & (1 << 18)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDSEED);
-        if (ebx & (1 << 11)) mCPUInfo.mCapabilities.emplace_back(Instructions::RTM);
-        if (edx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::SERIALIZE);
+        if (ebx & (1 << 26)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512PF);
+        if (ebx & (1 << 27)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512ER);
+        if (ebx & (1 << 28)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512CD);
         if (ebx & (1 << 29)) mCPUInfo.mCapabilities.emplace_back(Instructions::SHA);
-        if (edx & (1 << 16)) mCPUInfo.mCapabilities.emplace_back(Instructions::TSXLDTRK);
-        if (edx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::UINTR);
+        if (ebx & (1 << 30)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512BW);
+        if (ebx & (1 << 31)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512VL);
+
+        if (ecx & (1 << 0)) mCPUInfo.mCapabilities.emplace_back(Instructions::PREFETCHWT1);
+        if (ecx & (1 << 1)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VBMI);
+        if (ecx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::WAITPKG);
+        if (ecx & (1 << 6)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VBMI2);
+        if (ecx & (1 << 7)) mCPUInfo.mCapabilities.emplace_back(Instructions::CET_SS);
+        if (ecx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::GFNI);
         if (ecx & (1 << 9)) mCPUInfo.mCapabilities.emplace_back(Instructions::VAES);
         if (ecx & (1 << 10)) mCPUInfo.mCapabilities.emplace_back(Instructions::VPCLMULQDQ);
-        if (ecx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::WAITPKG);
+        if (ecx & (1 << 11)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VNNI);
+        if (ecx & (1 << 12)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_BITALG);
+        if (ecx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512VPOPCNTDQ);
+        if (ecx & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::RDPID);
+        if (ecx & (1 << 25)) mCPUInfo.mCapabilities.emplace_back(Instructions::CLDEMOTE);
+        if (ecx & (1 << 27)) mCPUInfo.mCapabilities.emplace_back(Instructions::MOVDIRI);
+        if (ecx & (1 << 28)) mCPUInfo.mCapabilities.emplace_back(Instructions::MOVDIR64B);
+        if (ecx & (1 << 29)) mCPUInfo.mCapabilities.emplace_back(Instructions::ENQCMD);
+
+        if (edx & (1 << 2)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_4VNNIW);
+        if (edx & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_4FMAPS);
+        if (edx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::UINTR);
+        if (edx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_VP2INTERSECT);
+        if (edx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::SERIALIZE);
+        if (edx & (1 << 16)) mCPUInfo.mCapabilities.emplace_back(Instructions::TSXLDTRK);
+        if (edx & (1 << 18)) mCPUInfo.mCapabilities.emplace_back(Instructions::PCONFIG);
+        if (edx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_FP16);
 
         if (extendedLeaf) {
             // Extended feature leaf information
@@ -250,15 +255,16 @@ public:
             ecx = 1;
             cpuid(&eax, &ebx, &ecx, &edx);
 
+            if (eax & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::RAO_INT);
             if (eax & (1 << 4)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_VNNI);
-            if (edx & (1 << 4)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_VNNI_INT8);
-            if (edx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_NE_CONVERT);
-            if (edx & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_IFMA);
             if (eax & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_512_BF16);
             if (eax & (1 << 7)) mCPUInfo.mCapabilities.emplace_back(Instructions::CMPCCXADD);
             if (eax & (1 << 22)) mCPUInfo.mCapabilities.emplace_back(Instructions::HRESET);
+            if (eax & (1 << 23)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_IFMA);
+
+            if (edx & (1 << 4)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_VNNI_INT8);
+            if (edx & (1 << 5)) mCPUInfo.mCapabilities.emplace_back(Instructions::AVX_NE_CONVERT);
             if (edx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::PREFETCHI);
-            if (eax & (1 << 3)) mCPUInfo.mCapabilities.emplace_back(Instructions::RAO_INT);
         }
 
         return mCPUInfo;
@@ -278,22 +284,22 @@ public:
 
 
 private:
-    static inline void cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx,
-               uint32_t *edx) {
+    static inline void cpuid(uint32_t *pEAX, uint32_t *pEBX, uint32_t *pECX,
+                             uint32_t *pEDX) {
 #if defined(_MSC_VER)
         int lCupReg[4];
-  __cpuidex(lCupReg, *eax, *ecx);
-  *eax = lCupReg[0];
-  *ebx = lCupReg[1];
-  *ecx = lCupReg[2];
-  *edx = lCupReg[3];
+  __cpuidex(lCupReg, *pEAX, *pECX);
+  *pEAX = lCupReg[0];
+  *pEBX = lCupReg[1];
+  *pECX = lCupReg[2];
+  *pEDX = lCupReg[3];
 #else
-        uint32_t lEAX = *eax, lEBX, lECX = *ecx, lEDX;
+        uint32_t lEAX = *pEAX, lEBX, lECX = *pECX, lEDX;
         asm volatile("cpuid\n\t" : "+a"(lEAX), "=b"(lEBX), "+c"(lECX), "=d"(lEDX));
-        *eax = lEAX;
-        *ebx = lEBX;
-        *ecx = lECX;
-        *edx = lEDX;
+        *pEAX = lEAX;
+        *pEBX = lEBX;
+        *pECX = lECX;
+        *pEDX = lEDX;
 #endif
     }
 

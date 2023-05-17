@@ -2,8 +2,10 @@
 
 # Intrinsics detection
 
-A header only x86_64 intrinsic detector. The detection is made through the usage of the **cpuid** instruction and is targeting the naming used at 
+A header only x86_64 intrinsic detector. The detection is made through the usage of the **cpuid** instruction in runtime and is targeting the naming used at 
 [Intel® Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html).
+
+This solution is used when you need to detect capabilities during runtime. For example if you got various optimisations targeting specific hardware support.
 
 ## Build and Run status
 
