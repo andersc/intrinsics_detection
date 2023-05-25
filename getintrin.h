@@ -123,12 +123,59 @@ public:
         std::vector<Instructions> mCapabilities;
     };
 
+    GetIntrin(){
+      callCpuid();
+    }
+
     CPUInfo getCapabilities() {
-        mCPUInfo = CPUInfo();
+        return mCPUInfo;
+    }
+
+    [[nodiscard]] bool hasFeature(Instructions feature) const {
+        return std::find(mCPUInfo.mCapabilities.begin(), mCPUInfo.mCapabilities.end(), feature) !=
+               mCPUInfo.mCapabilities.end();
+    }
+
+    std::string getFeatureName(Instructions feature) {
+        auto lIndex = static_cast<uint32_t>(feature);
+        if (lIndex >= InstructionsMax) {
+            return "Unknown";
+        }
+        return mFeatureNames[lIndex];
+    }
+
+    ///Delete copy and move constructors and assign operators
+    GetIntrin(GetIntrin const &) = delete;              // Copy construct
+    GetIntrin(GetIntrin &&) = delete;                   // Move construct
+    GetIntrin &operator=(GetIntrin const &) = delete;   // Copy assign
+    GetIntrin &operator=(GetIntrin &&) = delete;        // Move assign
+
+
+private:
+    static inline void cpuid(uint32_t *pEAX, uint32_t *pEBX, uint32_t *pECX,
+                             uint32_t *pEDX) {
+#if defined(_MSC_VER)
+        int lCupReg[4];
+  __cpuidex(lCupReg, *pEAX, *pECX);
+  *pEAX = lCupReg[0];
+  *pEBX = lCupReg[1];
+  *pECX = lCupReg[2];
+  *pEDX = lCupReg[3];
+#else
+        uint32_t lEAX = *pEAX, lEBX, lECX = *pECX, lEDX;
+        asm volatile("cpuid\n\t" : "+a"(lEAX), "=b"(lEBX), "+c"(lECX), "=d"(lEDX));
+        *pEAX = lEAX;
+        *pEBX = lEBX;
+        *pECX = lECX;
+        *pEDX = lEDX;
+#endif
+    }
+
+    void callCpuid() {
         uint32_t eax, ebx, ecx, edx;
-        uint32_t maxCapabilities = 0;
-        uint32_t maxExtendedCapabilities = 0;
-        uint32_t extendedLeaf = 0;
+        uint32_t maxCapabilities;
+        uint32_t maxExtendedCapabilities;
+        uint32_t extendedLeaf;
 
         // Is extended feature information available?
         eax = 0;
@@ -218,7 +265,7 @@ public:
         mCPUInfo.mExtendedFamilyID = (eax >> 20) & 0xFF;
 
         if (maxCapabilities <= 7) {
-            return mCPUInfo;
+            return;
         }
 
         // Extended feature information
@@ -296,42 +343,6 @@ public:
             if (edx & (1 << 8)) mCPUInfo.mCapabilities.emplace_back(Instructions::AMX_COMPLEX);
             if (edx & (1 << 14)) mCPUInfo.mCapabilities.emplace_back(Instructions::PREFETCHI);
         }
-
-        return mCPUInfo;
-    }
-
-    [[nodiscard]] bool hasFeature(Instructions feature) const {
-        return std::find(mCPUInfo.mCapabilities.begin(), mCPUInfo.mCapabilities.end(), feature) !=
-               mCPUInfo.mCapabilities.end();
-    }
-
-    std::string getFeatureName(Instructions feature) {
-        auto lIndex = static_cast<uint32_t>(feature);
-        if (lIndex >= InstructionsMax) {
-            return "Unknown";
-        }
-        return mFeatureNames[lIndex];
-    }
-
-
-private:
-    static inline void cpuid(uint32_t *pEAX, uint32_t *pEBX, uint32_t *pECX,
-                             uint32_t *pEDX) {
-#if defined(_MSC_VER)
-        int lCupReg[4];
-  __cpuidex(lCupReg, *pEAX, *pECX);
-  *pEAX = lCupReg[0];
-  *pEBX = lCupReg[1];
-  *pECX = lCupReg[2];
-  *pEDX = lCupReg[3];
-#else
-        uint32_t lEAX = *pEAX, lEBX, lECX = *pECX, lEDX;
-        asm volatile("cpuid\n\t" : "+a"(lEAX), "=b"(lEBX), "+c"(lECX), "=d"(lEDX));
-        *pEAX = lEAX;
-        *pEBX = lEBX;
-        *pECX = lECX;
-        *pEDX = lEDX;
-#endif
     }
 
     CPUInfo mCPUInfo;

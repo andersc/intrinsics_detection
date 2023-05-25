@@ -12,6 +12,7 @@ int main() {
     // Returns a struct containing this CPU's information and capabilities
     auto lCPUInfo = lIntrinCap.getCapabilities();
 
+    // Print the information
     std::cout << "Vendor: " << lCPUInfo.mVendor << std::endl;
     std::cout << "Name: " << lCPUInfo.mName << std::endl;
     std::cout << "Stepping: " << std::to_string(lCPUInfo.mStepping) << std::endl;
